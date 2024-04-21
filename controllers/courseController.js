@@ -7,7 +7,8 @@ const db = mysql.createPool({
     database: 'ksu_academy'
 })
 
-const createSubject = async (req, res) => {
+// создание курса
+const createCourse = async (req, res) => {
     try{
         const {teacher_id, course_name} = req.body
 
@@ -22,6 +23,18 @@ const createSubject = async (req, res) => {
     }
 }
 
+const getOneCourse = async (req, res) => {
+    try{
+        let course_id = req.params.id
+        const rows  = await db.execute('SELECT * FROM course WHERE course_id = ?', [course_id])
+        res.json(rows[0])
+    } catch(error){
+        console.error(error)
+        res.status(500).json({error: "Ошибка при получении данных"})
+    }
+}
+
 module.exports = {
-    createSubject
+    createCourse,
+    getOneCourse
 }

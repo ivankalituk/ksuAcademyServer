@@ -3,7 +3,7 @@ const mysql = require('mysql2/promise')
 const cors = require('cors')
 
 // контроллеры
-const { createSubject} = require('./controllers/courseController.js')
+const {createCourse , getOneCourse} = require('./controllers/courseController.js')
 
 
 const port = 1000
@@ -30,10 +30,29 @@ db.getConnection()
         console.log('DB CONNECTION ERROR: ', err.message);
     });
 
-// ЗАПРОСЫ
 
+
+
+
+
+// ЗАПРОСЫ
 // CRUD для предмета
-app.post('/subject', createSubject)
+app.post('/subject', createCourse)
+app.get('/subject/:id', getOneCourse)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 app.listen(port, (err) => {
