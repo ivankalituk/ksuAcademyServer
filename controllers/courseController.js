@@ -34,7 +34,29 @@ const getOneCourse = async (req, res) => {
     }
 }
 
+const getAllCourses = async (req, res) => {
+    try{
+        let teacher_id = req.params.teacher_id
+        const rows = await db.execute('SELECT * from course WHERE teacher_id = ?', [teacher_id])
+        res.json(rows[0])
+    } catch (error){
+        res.status(500).json({error: "Ошибка при получении данных"})
+    }
+}
+
+const deleteCourse = async (req, res) => {
+    try{
+        let course_id = req.params.course_id
+        const rows = await db.execute('Delete from course WHERE course_id = ?', [course_id])
+    } catch (error){
+        console.log(error)
+        res.status(500).json({error: "Ошибка при удалении"})
+    }
+}
+
 module.exports = {
     createCourse,
-    getOneCourse
+    getOneCourse,
+    getAllCourses,
+    deleteCourse
 }

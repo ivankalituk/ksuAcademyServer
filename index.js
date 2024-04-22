@@ -3,7 +3,7 @@ const mysql = require('mysql2/promise')
 const cors = require('cors')
 
 // контроллеры
-const {createCourse , getOneCourse} = require('./controllers/courseController.js')
+const {createCourse, getOneCourse, getAllCourses, deleteCourse} = require('./controllers/courseController.js')
 
 
 const port = 1000
@@ -37,9 +37,10 @@ db.getConnection()
 
 // ЗАПРОСЫ
 // CRUD для предмета
-app.post('/subject', createCourse)
-app.get('/subject/:id', getOneCourse)
-
+app.post('/course', createCourse)
+app.get('/course/:id', getOneCourse)
+app.get('/courses/:teacher_id', getAllCourses)
+app.delete('')
 
 
 
