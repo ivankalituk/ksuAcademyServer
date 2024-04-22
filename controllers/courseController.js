@@ -23,6 +23,7 @@ const createCourse = async (req, res) => {
     }
 }
 
+// получение одного курса
 const getOneCourse = async (req, res) => {
     try{
         let course_id = req.params.id
@@ -34,6 +35,7 @@ const getOneCourse = async (req, res) => {
     }
 }
 
+// получение всех курсов
 const getAllCourses = async (req, res) => {
     try{
         let teacher_id = req.params.teacher_id
@@ -44,15 +46,19 @@ const getAllCourses = async (req, res) => {
     }
 }
 
+// удаление курса
 const deleteCourse = async (req, res) => {
     try{
         let course_id = req.params.course_id
         const rows = await db.execute('Delete from course WHERE course_id = ?', [course_id])
+        res.json({massage: "Предмет удалён"})
     } catch (error){
         console.log(error)
         res.status(500).json({error: "Ошибка при удалении"})
     }
 }
+
+// обновление курса
 
 module.exports = {
     createCourse,

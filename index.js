@@ -36,11 +36,12 @@ db.getConnection()
 
 
 // ЗАПРОСЫ
+
 // CRUD для предмета
 app.post('/course', createCourse)
 app.get('/course/:id', getOneCourse)
 app.get('/courses/:teacher_id', getAllCourses)
-app.delete('')
+app.delete('/course/:course_id', deleteCourse)
 
 
 
