@@ -35,8 +35,8 @@ const getOneCourse = async (req, res) => {
     }
 }
 
-// получение всех курсов
-const getAllCourses = async (req, res) => {
+// получение всех курсов преподавателя
+const getAllCoursesByTeacher = async (req, res) => {
     try{
         let teacher_id = req.params.teacher_id
         const rows = await db.execute('SELECT * from course WHERE teacher_id = ?', [teacher_id])
@@ -58,11 +58,23 @@ const deleteCourse = async (req, res) => {
     }
 }
 
+// получение всех курсов
+const getAllCourses = async (req, res) => {
+    try{
+        const rows = await db.execute('SELECT * from course')
+        res.json(rows[0])
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({error: "Ошибка при получении"})
+    }
+}
+
 // обновление курса
 
 module.exports = {
     createCourse,
     getOneCourse,
     getAllCourses,
+    getAllCoursesByTeacher,
     deleteCourse
 }
