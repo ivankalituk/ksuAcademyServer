@@ -56,10 +56,24 @@ const deleteTheme = async (req, res) => {
     }
 }
 
+// обновление темы
+const putTheme = async (req, res) => {
+    try{
+        const {theme_name, theme_id} = req.body
+
+        const rows = await db.execute("UPDATE theme SET theme_name = ? WHERE theme_id = ?", [theme_name, theme_id])
+        res.json("Обвновление успешно")
+
+    } catch(error){
+        res.status(error).json({error: "Ошибка при обновлении"})
+    }
+}
+
 
 module.exports= {
     createTheme,
     getOneTheme,
     getAllThemes,
-    deleteTheme
+    deleteTheme,
+    putTheme
 }

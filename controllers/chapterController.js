@@ -55,9 +55,22 @@ const deleteChapter = async (req, res) => {
     }
 }
 
+// обновление раздела
+const putChapter = async (req, res) => {
+    try{
+        const {chapter_id, chapter_name} = req.body
+
+        const rows = await db.execute("UPDATE chapter SET chapter_name = ? WHERE chapter_id = ?", [chapter_name, chapter_id])
+        res.json('Раздел обновлен')
+    } catch(error){
+        res.status(500).json({error: "Ошибка при обновлении данных"})
+    }
+}
+
 module.exports = {
     createChapter,
     getOneChapter,
     getAllChapters,
-    deleteChapter
+    deleteChapter,
+    putChapter
 }

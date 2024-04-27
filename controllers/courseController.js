@@ -70,11 +70,23 @@ const getAllCourses = async (req, res) => {
 }
 
 // обновление курса
+const putCourse = async (req, res) =>{
+    try{
+        const {course_id, course_name} = req.body
+        
+        const rows = await db.execute("UPDATE course SET course_name = ? WHERE course_id = ?", [course_name, course_id])
+        res.json("Обновление успешно")
+    } catch(error){
+        res.status(500).json({error: "Ошибка при обновлении"})
+    }
+}
+
 
 module.exports = {
     createCourse,
     getOneCourse,
     getAllCourses,
     getAllCoursesByTeacher,
-    deleteCourse
+    deleteCourse,
+    putCourse
 }
