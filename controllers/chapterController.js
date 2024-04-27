@@ -61,7 +61,7 @@ const putChapter = async (req, res) => {
         const {chapter_id, chapter_name} = req.body
 
         const rows = await db.execute("UPDATE chapter SET chapter_name = ? WHERE chapter_id = ?", [chapter_name, chapter_id])
-        res.json('Раздел обновлен')
+        res.json({massage: 'Раздел обновлен'})
     } catch(error){
         res.status(500).json({error: "Ошибка при обновлении данных"})
     }

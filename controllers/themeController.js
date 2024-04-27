@@ -62,7 +62,7 @@ const putTheme = async (req, res) => {
         const {theme_name, theme_id} = req.body
 
         const rows = await db.execute("UPDATE theme SET theme_name = ? WHERE theme_id = ?", [theme_name, theme_id])
-        res.json("Обвновление успешно")
+        res.json({massage: "Обвновление успешно"})
 
     } catch(error){
         res.status(error).json({error: "Ошибка при обновлении"})
