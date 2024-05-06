@@ -58,6 +58,17 @@ const deleteChapter = async (req, res) => {
 // обновление раздела
 const putChapter = async (req, res) => {
     try{
+
+        // проверка на вставку файла, ПОТОМ ПОМЕНЯТЬ
+        let file
+        if(req.file){
+            console.log("FILE EXIST")
+            file = req.file.path
+        } else {
+            console.log("FILE EMPTY")
+        }
+
+
         const {chapter_id, chapter_name} = req.body
 
         const rows = await db.execute("UPDATE chapter SET chapter_name = ? WHERE chapter_id = ?", [chapter_name, chapter_id])

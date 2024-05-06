@@ -1,16 +1,20 @@
 const express = require('express')
 const mysql = require('mysql2/promise')
 const cors = require('cors')
+const multer = require('multer')
+
 
 // контроллеры
 const {createCourse, getOneCourse, getAllCourses, deleteCourse, getAllCoursesByTeacher, putCourse} = require('./controllers/courseController.js')
 const {createChapter, getOneChapter, getAllChapters, deleteChapter, putChapter} = require('./controllers/chapterController.js')
 const {createTheme, getOneTheme, getAllThemes, deleteTheme, putTheme} = require('./controllers/themeController.js')
-const port = 1000
 
-const app = express()
-app.use(express.json())
-app.use(cors())
+const port = 1000           //порт
+
+const app = express()       
+app.use(express.json())                         //задаём формат данных
+app.use(cors())                                 //для исправления ошибки корс
+const upload = multer({dest: 'uploads/'})       //назначение папки для файлов
 
 // подключение к базе данных
 const db = mysql.createPool({
@@ -48,7 +52,7 @@ app.post('/chapter', createChapter)                         //создание �
 app.get('/chapter/:id', getOneChapter)                      //получение раздела по айди (это не используется)
 app.get('/chapters/:course_id', getAllChapters)             //получение разделов по айди предмета
 app.delete('/chapter/:id', deleteChapter)                   //удаление раздела
-app.put('/chapter', putChapter)                             //обновление раздела
+app.put('/chapter', upload.single('photo'), putChapter)     //обновление раздела
 
 // CRUD для темы
 app.post('/theme', createTheme)                             //создание темы
