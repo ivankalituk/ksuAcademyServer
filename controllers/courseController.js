@@ -75,7 +75,7 @@ const putCourse = async (req, res) =>{
         const {course_id, course_name} = req.body
         const {filename} = req.file
 
-        const rows = await db.execute("UPDATE course SET course_name = ?, img_path = ? WHERE course_id = ?",  [course_name, filename, course_id])
+        const rows = await db.execute("UPDATE course SET course_name = ?, img_path = ? WHERE course_id = ?",  [course_name, 'uploads/' + filename, course_id])
         res.json({massage: "Курс обновлен"})
     } catch {
         res.status(500).json({error: "Ошибка при обновлении данных"})

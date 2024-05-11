@@ -71,7 +71,7 @@ const putChapter = async (req, res) => {
 
         const {chapter_id, chapter_name} = req.body
 
-        const rows = await db.execute("UPDATE chapter SET chapter_name = ?, img_path = ? WHERE chapter_id = ?", [chapter_name, filename, chapter_id]);
+        const rows = await db.execute("UPDATE chapter SET chapter_name = ?, img_path = ? WHERE chapter_id = ?", [chapter_name, 'uploads/'+ filename, chapter_id]);
 
         res.json({massage: 'Раздел обновлен'})
     } catch(error){
