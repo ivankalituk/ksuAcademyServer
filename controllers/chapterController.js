@@ -60,18 +60,19 @@ const putChapter = async (req, res) => {
     try{
 
         // проверка на вставку файла, ПОТОМ ПОМЕНЯТЬ
-        let file
         if(req.file){
             console.log("FILE EXIST")
-            file = req.file.path
         } else {
             console.log("FILE EMPTY")
         }
 
+        const {filename} = req.file
+        // console.log(filename)
 
         const {chapter_id, chapter_name} = req.body
 
-        const rows = await db.execute("UPDATE chapter SET chapter_name = ? WHERE chapter_id = ?", [chapter_name, chapter_id])
+        const rows = await db.execute("UPDATE chapter SET chapter_name = ?, img_path = ? WHERE chapter_id = ?", [chapter_name, filename, chapter_id]);
+
         res.json({massage: 'Раздел обновлен'})
     } catch(error){
         res.status(500).json({error: "Ошибка при обновлении данных"})

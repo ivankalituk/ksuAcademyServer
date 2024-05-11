@@ -14,7 +14,21 @@ const port = 1000           //порт
 const app = express()       
 app.use(express.json())                         //задаём формат данных
 app.use(cors())                                 //для исправления ошибки корс
-const upload = multer({dest: 'uploads/'})       //назначение папки для файлов
+app.use('/uploads', express.static('uploads'))
+
+// нужно сделать так, чтоб любое фото ставало особым
+const storage = multer.diskStorage({
+    destination: (_,__, cb) => {
+        cb(null, 'uploads');
+    },
+    filename: (_,file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix+ file.originalname);
+    },
+})
+
+
+const upload = multer({storage})       //назначение папки для файлов
 
 // подключение к базе данных
 const db = mysql.createPool({
@@ -45,7 +59,7 @@ app.get('/course/:id', getOneCourse)                        //получение
 app.get('/courses/:teacher_id', getAllCoursesByTeacher)     //получение курсов по айди препода
 app.delete('/course/:course_id', deleteCourse)              //удаление курса
 app.get('/courses', getAllCourses)                          //получение всех курсов
-app.put('/course', putCourse)                               //обновление курса
+app.put('/course', upload.single('photo'), putCourse)                               //обновление курса
 
 // CRUD для раздела
 app.post('/chapter', createChapter)                         //создание предмета

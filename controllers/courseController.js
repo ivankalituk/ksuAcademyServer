@@ -70,14 +70,13 @@ const getAllCourses = async (req, res) => {
 }
 
 // обновление курса
+// пересоздать, чтоб было и получение фото и всё остальное 
 const putCourse = async (req, res) =>{
     try{
-        const {course_id, course_name} = req.body
-        
-        const rows = await db.execute("UPDATE course SET course_name = ? WHERE course_id = ?", [course_name, course_id])
-        res.json("Обновление успешно")
-    } catch(error){
-        res.status(500).json({error: "Ошибка при обновлении"})
+        console.log(req.body)
+        console.log(req.file)
+    } catch {
+        console.log("WHORE")
     }
 }
 
