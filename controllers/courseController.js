@@ -70,7 +70,6 @@ const getAllCourses = async (req, res) => {
 }
 
 // обновление курса
-// пересоздать, чтоб было и получение фото и всё остальное 
 const putCourse = async (req, res) =>{
     try{
         const {course_id, course_name} = req.body
