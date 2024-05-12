@@ -1,4 +1,5 @@
 const mysql= require('mysql2/promise')
+const fs = require('fs')
 
 const db = mysql.createPool({
     host: 'localhost',
@@ -46,18 +47,7 @@ const getAllCoursesByTeacher = async (req, res) => {
     }
 }
 
-// удаление курса
-const deleteCourse = async (req, res) => {
-    try{
-        let course_id = req.params.course_id
-        const rows = await db.execute('Delete from course WHERE course_id = ?', [course_id])
-        res.json({massage: "Предмет удалён"})
-    } catch (error){
-        console.log(error)
-        res.status(500).json({error: "Ошибка при удалении"})
-    }
-}
-
+// СДЕЛАТЬ ПАГИНАЦИЮ
 // получение всех курсов
 const getAllCourses = async (req, res) => {
     try{
@@ -69,6 +59,32 @@ const getAllCourses = async (req, res) => {
     }
 }
 
+// ПРИМЕНИТЬ FS
+// удаление фоток не проверял
+// удаление курса
+const deleteCourse = async (req, res) => {
+    try{
+        let course_id = req.params.course_id
+
+        // удаление фото курса
+        const [[{img_path}]] = await db.execute('SELECT img_path FROM course WHERE course_id = ?', [course_id])
+        if (img_path !== null && fs.existsSync(img_path)){
+            fs.unlink(`uploads/${img_path}`, (err) => {
+                if (err){
+                    console.error(err)
+                    res.status(500).json({massage: "Ошибка удаления файла"})
+                }
+            })
+        }
+        const rows = await db.execute('Delete from course WHERE course_id = ?', [course_id])
+        res.json({massage: "Предмет удалён"})
+    } catch (error){
+        console.log(error)
+        res.status(500).json({error: "Ошибка при удалении"})
+    }
+}
+
+// применить FS
 // обновление курса
 const putCourse = async (req, res) =>{
     try{

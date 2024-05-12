@@ -3,7 +3,6 @@ const mysql = require('mysql2/promise')
 const cors = require('cors')
 const multer = require('multer')
 
-
 // контроллеры
 const {createCourse, getOneCourse, getAllCourses, deleteCourse, getAllCoursesByTeacher, putCourse} = require('./controllers/courseController.js')
 const {createChapter, getOneChapter, getAllChapters, deleteChapter, putChapter} = require('./controllers/chapterController.js')

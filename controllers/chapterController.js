@@ -1,4 +1,6 @@
 const mysql= require('mysql2/promise')
+const fs = require('fs')
+
 
 const db = mysql.createPool({
     host: 'localhost',
@@ -48,6 +50,19 @@ const getAllChapters = async (req, res) => {
 const deleteChapter = async (req, res) => {
     try{
         const chapter_id = req.params.id
+
+        // удаление файла
+        const [[{img_path}]] = await db.execute("SELECT img_path FROM chapter WHERE chapter_id = ?", [chapter_id]);
+        if (img_path !== null && fs.existsSync(img_path)){
+            fs.unlink(img_path, (err) => {
+                if (err){
+                    console.error(err)
+                    res.status(500).json({massage: "Ошибка удаления файла"})
+                }
+            })
+        }
+
+        // удаление из бд
         const rows = await db.execute("DELETE FROM chapter WHERE chapter_id = ?", [chapter_id])
         res.json({massege: "Раздел удалён"})
     } catch (error) {
@@ -58,20 +73,27 @@ const deleteChapter = async (req, res) => {
 // обновление раздела
 const putChapter = async (req, res) => {
     try{
-
-        // проверка на вставку файла, ПОТОМ ПОМЕНЯТЬ
-        if(req.file){
-            console.log("FILE EXIST")
-        } else {
-            console.log("FILE EMPTY")
-        }
-
-        const {filename} = req.file
-        // console.log(filename)
-
         const {chapter_id, chapter_name} = req.body
 
-        const rows = await db.execute("UPDATE chapter SET chapter_name = ?, img_path = ? WHERE chapter_id = ?", [chapter_name, 'uploads/'+ filename, chapter_id]);
+        // обновление данных
+        if (req.file){
+            // удаление старого фото если новое фото загруджено
+            const [[{img_path}]] = await db.execute("SELECT img_path FROM chapter WHERE chapter_id = ?", [chapter_id]);
+            if (img_path !== null && fs.existsSync(img_path)){
+                fs.unlink(img_path, (err) => {
+                    if (err){
+                        console.error(err)
+                        res.status(500).json({massage: "Ошибка удаления файла"})
+                    }
+                })
+            }
+            
+            const {filename} = req.file
+            const rows = await db.execute("UPDATE chapter SET chapter_name = ?, img_path = ? WHERE chapter_id = ?", [chapter_name, 'uploads/'+ filename, chapter_id]);
+        } else {
+            const rows = await db.execute("UPDATE chapter SET chapter_name = ? WHERE chapter_id = ?", [chapter_name, chapter_id]);
+        }
+       
 
         res.json({massage: 'Раздел обновлен'})
     } catch(error){
