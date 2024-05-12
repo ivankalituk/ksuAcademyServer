@@ -59,8 +59,7 @@ const getAllCourses = async (req, res) => {
     }
 }
 
-// ПРИМЕНИТЬ FS
-// удаление фоток не проверял
+// не работает
 // удаление курса
 const deleteCourse = async (req, res) => {
     try{
@@ -68,14 +67,16 @@ const deleteCourse = async (req, res) => {
 
         // удаление фото курса
         const [[{img_path}]] = await db.execute('SELECT img_path FROM course WHERE course_id = ?', [course_id])
+
         if (img_path !== null && fs.existsSync(img_path)){
-            fs.unlink(`uploads/${img_path}`, (err) => {
+            fs.unlink(img_path, (err) => {
                 if (err){
                     console.error(err)
                     res.status(500).json({massage: "Ошибка удаления файла"})
                 }
             })
         }
+
         const rows = await db.execute('Delete from course WHERE course_id = ?', [course_id])
         res.json({massage: "Предмет удалён"})
     } catch (error){
@@ -84,14 +85,29 @@ const deleteCourse = async (req, res) => {
     }
 }
 
-// применить FS
 // обновление курса
 const putCourse = async (req, res) =>{
     try{
         const {course_id, course_name} = req.body
-        const {filename} = req.file
+        
+        if(req.file){
+            // если есть файл, то удаляем старый
+            const [[{img_path}]] = await db.execute("SELECT img_path FROM course WHERE course_id = ?", [course_id]);
+            if (img_path !== null && fs.existsSync(img_path)){
+                fs.unlink(img_path, (err) => {
+                    if (err){
+                        console.error(err)
+                        res.status(500).json({massage: "Ошибка удаления файла"})
+                    }
+                })
+            }
 
-        const rows = await db.execute("UPDATE course SET course_name = ?, img_path = ? WHERE course_id = ?",  [course_name, 'uploads/' + filename, course_id])
+            const {filename} = req.file
+            const rows = await db.execute("UPDATE course SET course_name = ?, img_path = ? WHERE course_id = ?",  [course_name, 'uploads/' + filename, course_id])
+        } else {
+            const rows = await db.execute("UPDATE course SET course_name = ? WHERE course_id = ?",  [course_name, course_id])        }
+
+
         res.json({massage: "Курс обновлен"})
     } catch {
         res.status(500).json({error: "Ошибка при обновлении данных"})
