@@ -59,7 +59,6 @@ const getAllCourses = async (req, res) => {
     }
 }
 
-// не работает
 // удаление курса
 const deleteCourse = async (req, res) => {
     try{
