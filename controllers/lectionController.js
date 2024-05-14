@@ -49,6 +49,17 @@ const getLections = async(req, res) => {
     }
 }
 
+// добавление фото лекции
+const createLectionPhoto = async(req, res) => {
+    try {
+        const imageUrl = 'http://localhost:1000/uploads/' + req.file.filename; // Путь к загруженному файлу изображения
+        res.json({ imageUrl });
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        res.status(500).send('Error uploading image');
+      }
+}
+
 
 // обновлении лекции
 
@@ -57,5 +68,6 @@ const getLections = async(req, res) => {
 module.exports = {
     createLection,
     getLection,
-    getLections
+    getLections,
+    createLectionPhoto
 }
