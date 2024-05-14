@@ -7,6 +7,8 @@ const multer = require('multer')
 const {createCourse, getOneCourse, getAllCourses, deleteCourse, getAllCoursesByTeacher, putCourse} = require('./controllers/courseController.js')
 const {createChapter, getOneChapter, getAllChapters, deleteChapter, putChapter} = require('./controllers/chapterController.js')
 const {createTheme, getOneTheme, getAllThemes, deleteTheme, putTheme} = require('./controllers/themeController.js')
+const {createLection, getLection, getLections} = require('./controllers/lectionController.js')
+
 
 const port = 1000           //порт
 
@@ -74,6 +76,10 @@ app.get('/themes/:chapter_id', getAllThemes)                //получение
 app.delete('/theme/:theme_id', deleteTheme)                 //удаление темы
 app.put('/theme', putTheme)                                 //обновление темы 
 
+// CRUD для лекции
+app.post('/lection', createLection)
+app.get('/lection/:id', getLection)
+app.get('/lections/:id', getLections)
 
 
 app.listen(port, (err) => {
