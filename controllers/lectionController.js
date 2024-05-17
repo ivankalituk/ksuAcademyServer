@@ -52,7 +52,12 @@ const getLections = async(req, res) => {
 // добавление фото лекции
 const createLectionPhoto = async(req, res) => {
     try {
-        const imageUrl = 'http://localhost:1000/uploads/' + req.file.filename; // Путь к загруженному файлу изображения
+        // создание пути к файлу
+        const imageUrl = 'http://localhost:1000/uploads/' + req.file.filename;
+        
+        // добавление ссылки на фото в базу данных 
+        // const rows = await db.execute('UPDATE lection SET lection_images = CONCAT(lection_images, ?, ?')
+
         res.json({ imageUrl });
       } catch (error) {
         console.error('Error uploading image:', error);
@@ -60,10 +65,30 @@ const createLectionPhoto = async(req, res) => {
       }
 }
 
-
 // обновлении лекции
+const updateLection = async(req, res) => {
+    try{
+        const {lection_content, lection_name, lection_id} = req.body
+        const rows = await db.execute("UPDATE lection SET lection_content = ?, lection_name = ? WHERE lection_id = ?", [lection_content, lection_name, lection_id])
+        res.status(200).json({massege: "Успешно оновлено"})
+    } catch (err){
+        res.status(500).json({massage: "Ошибка при обновлении"})
+    }
+}
+
+
 
 // удаление лекции
+const deleteLection = async(req, res) => {
+    try{
+        const {lection_id} = req.params.id
+        const rows = await db.execute("DELETE FROM lection WHERE lection_id = ?", [lection_id])
+        res.status(200).json({massege: "Успешно удалено"})
+    } catch(err){
+        res.status(500).json({massage: "Ошибка при удалении"})
+    }
+}
+
 
 module.exports = {
     createLection,
