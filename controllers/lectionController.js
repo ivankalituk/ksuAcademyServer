@@ -65,6 +65,7 @@ const createLectionPhoto = async(req, res) => {
       }
 }
 
+// добавление массива фото
 // обновлении лекции
 const updateLection = async(req, res) => {
     try{
@@ -75,8 +76,6 @@ const updateLection = async(req, res) => {
         res.status(500).json({massage: "Ошибка при обновлении"})
     }
 }
-
-
 
 // удаление лекции
 const deleteLection = async(req, res) => {
@@ -94,5 +93,7 @@ module.exports = {
     createLection,
     getLection,
     getLections,
-    createLectionPhoto
+    createLectionPhoto,
+    updateLection,
+    deleteLection
 }
