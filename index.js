@@ -7,7 +7,7 @@ const multer = require('multer')
 const {createCourse, getOneCourse, getAllCourses, deleteCourse, getAllCoursesByTeacher, putCourse} = require('./controllers/courseController.js')
 const {createChapter, getOneChapter, getAllChapters, deleteChapter, putChapter} = require('./controllers/chapterController.js')
 const {createTheme, getOneTheme, getAllThemes, deleteTheme, putTheme} = require('./controllers/themeController.js')
-const {createLection, getLection, getLections, createLectionPhoto} = require('./controllers/lectionController.js')
+const {createLection, getLection, getLections, createLectionPhoto, updateLection, deleteLection} = require('./controllers/lectionController.js')
 
 
 const port = 1000           //порт
@@ -81,7 +81,8 @@ app.post('/lection', createLection)                         //создание �
 app.get('/lection/:id', getLection)                         //получение лекции по её айди
 app.get('/lections/:id', getLections)                       //получение айди и названий лекций по айди темы
 // app.delete('/lectio/:id')
-// app.put('/lection/:id')
+app.put('/lection', updateLection)
+
 app.post('/lection/photo',upload.single('photo'), createLectionPhoto)
 
 app.listen(port, (err) => {
