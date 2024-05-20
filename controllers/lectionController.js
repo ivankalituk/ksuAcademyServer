@@ -50,13 +50,17 @@ const getLections = async(req, res) => {
 }
 
 // добавление фото лекции
+// добавление ссылки на фото в базу данных
 const createLectionPhoto = async(req, res) => {
     try {
         // создание пути к файлу
         const imageUrl = 'http://localhost:1000/uploads/' + req.file.filename;
-        
+        const dbImageUrl  = 'uploads/' + req.file.filename
+        const {lection_id} = req.body
+        console.log(lection_id)
+
         // добавление ссылки на фото в базу данных 
-        // const rows = await db.execute('UPDATE lection SET lection_images = CONCAT(lection_images, ?, ?')
+        const rows = await db.execute('UPDATE lection SET lection_images = COALESCE(CONCAT(lection_images, " ", ?), ?) WHERE lection_id = ?;', [dbImageUrl, dbImageUrl, lection_id])
 
         res.json({ imageUrl });
       } catch (error) {
@@ -80,7 +84,8 @@ const updateLection = async(req, res) => {
 // удаление лекции
 const deleteLection = async(req, res) => {
     try{
-        const {lection_id} = req.params.id
+        const lection_id = req.params.id
+        console.log(lection_id)
         const rows = await db.execute("DELETE FROM lection WHERE lection_id = ?", [lection_id])
         res.status(200).json({massege: "Успешно удалено"})
     } catch(err){

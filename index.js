@@ -80,10 +80,9 @@ app.put('/theme', putTheme)                                 //обновлени
 app.post('/lection', createLection)                         //создание лекции
 app.get('/lection/:id', getLection)                         //получение лекции по её айди
 app.get('/lections/:id', getLections)                       //получение айди и названий лекций по айди темы
-// app.delete('/lectio/:id')
-app.put('/lection', updateLection)
-
-app.post('/lection/photo',upload.single('photo'), createLectionPhoto)
+app.delete('/lection/:id', deleteLection)                   //удаление лекции
+app.put('/lection', updateLection)                          //обновление лекции
+app.post('/lection/photo',upload.single('photo'), createLectionPhoto)   //добавление фото в лекцию
 
 app.listen(port, (err) => {
     if (err){
