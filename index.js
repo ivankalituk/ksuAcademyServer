@@ -17,7 +17,7 @@ app.use(express.json())                         //задаём формат да
 app.use(cors())                                 //для исправления ошибки корс
 app.use('/uploads', express.static('uploads'))
 
-// нужно сделать так, чтоб любое фото ставало особым
+// создание уникальных названих для всех фото (если фото одинаковые то также будут иметь разные названия)
 const storage = multer.diskStorage({
     destination: (_,__, cb) => {
         cb(null, 'uploads');
@@ -27,7 +27,6 @@ const storage = multer.diskStorage({
         cb(null, uniqueSuffix+ file.originalname);
     },
 })
-
 
 const upload = multer({storage})       //назначение папки для файлов
 

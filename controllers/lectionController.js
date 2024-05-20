@@ -1,5 +1,6 @@
 const mysql= require('mysql2/promise')
 const fs = require('fs')
+const {urlByHtml, textToArray, massMatches} = require('../functions/urlByHtml.js')
 
 const db = mysql.createPool({
     host: 'localhost',
@@ -75,6 +76,23 @@ const updateLection = async(req, res) => {
     try{
         const {lection_content, lection_name, lection_id} = req.body
         const rows = await db.execute("UPDATE lection SET lection_content = ?, lection_name = ? WHERE lection_id = ?", [lection_content, lection_name, lection_id])
+        const [[{lection_images}]] = await db.execute("SELECT lection_images FROM lection WHERE lection_id = ?", [lection_id])
+
+        // УДАЛЕНИЕ НЕНУЖНЫХ ФОТО ((((((НЕ ПРОВЕРЯЛОСЬ))))))
+
+        // достаём адреса фото из актуального ХТМЛ
+        const actualImgArray = urlByHtml(lection_content)
+
+        // переводим текст со ВСЕМИ адресами фото в массив адресов
+        const allImgArray = textToArray(lection_images)
+
+        // сравниваем два массива
+        const {matchedImg, unMatchedImg} = massMatches(actualImgArray, allImgArray)
+
+        // удаляем ненужные фото из файлов
+        
+        // добавляем в бд фактические фото
+
         res.status(200).json({massege: "Успешно оновлено"})
     } catch (err){
         res.status(500).json({massage: "Ошибка при обновлении"})
@@ -82,6 +100,7 @@ const updateLection = async(req, res) => {
 }
 
 // удаление лекции
+// нету  удаления фото
 const deleteLection = async(req, res) => {
     try{
         const lection_id = req.params.id
