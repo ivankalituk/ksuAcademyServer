@@ -2,6 +2,7 @@ const express = require('express')
 const mysql = require('mysql2/promise')
 const cors = require('cors')
 const multer = require('multer')
+const {slugify} = require('transliteration')        //для перевода любых символов на англ
 
 // контроллеры
 const {createCourse, getOneCourse, getAllCourses, deleteCourse, getAllCoursesByTeacher, putCourse} = require('./controllers/courseController.js')
@@ -24,7 +25,7 @@ const storage = multer.diskStorage({
     },
     filename: (_,file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix+ file.originalname);
+        cb(null, uniqueSuffix+ slugify(file.originalname));
     },
 })
 
