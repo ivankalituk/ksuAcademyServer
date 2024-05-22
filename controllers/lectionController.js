@@ -1,6 +1,6 @@
 const mysql= require('mysql2/promise')
 const fs = require('fs')
-const {urlByHtml, textToArray, massMatches} = require('../functions/urlByHtml.js')
+const {urlByHtml, textToArray, massMatches, arrayToText} = require('../functions/urlByHtml.js')
 
 const db = mysql.createPool({
     host: 'localhost',
@@ -75,24 +75,35 @@ const createLectionPhoto = async(req, res) => {
 const updateLection = async(req, res) => {
     try{
         const {lection_content, lection_name, lection_id} = req.body
+
+        // заполнение самой лекции
         const rows = await db.execute("UPDATE lection SET lection_content = ?, lection_name = ? WHERE lection_id = ?", [lection_content, lection_name, lection_id])
+        
+        // получение всех использованных при создании лекции фото
         const [[{lection_images}]] = await db.execute("SELECT lection_images FROM lection WHERE lection_id = ?", [lection_id])
 
-        // УДАЛЕНИЕ НЕНУЖНЫХ ФОТО ((((((НЕ ПРОВЕРЯЛОСЬ))))))
+        console.log(lection_images)
 
-        // достаём адреса фото из актуального ХТМЛ
-        const actualImgArray = urlByHtml(lection_content)
-
-        // переводим текст со ВСЕМИ адресами фото в массив адресов
-        const allImgArray = textToArray(lection_images)
+        const actualImgArray = urlByHtml(lection_content)           //актуальные адреса фото
+        const allImgArray = textToArray(lection_images)             //все использованные фото
 
         // сравниваем два массива
-        const {matchedImg, unMatchedImg} = massMatches(actualImgArray, allImgArray)
+        const {matches: matchedImg,notFound: unMatchedImg} = massMatches(actualImgArray, allImgArray)
 
         // удаляем ненужные фото из файлов
-        
-        // добавляем в бд фактические фото
+        unMatchedImg.forEach((item) => {
+            if (fs.existsSync(item)){
+                fs.unlink(item, (err)=>{
+                    if (err){
+                        console.error(err)
+                        res.status(500).json({massage: "ошибка удаления фото лекции"})
+                    }
+                })
+            }
+        })
 
+        // добавляем в бд фактические фото
+        await db.execute('UPDATE lection SET lection_images = ? WHERE lection_id = ?', [arrayToText(matchedImg), lection_id])
         res.status(200).json({massege: "Успешно оновлено"})
     } catch (err){
         res.status(500).json({massage: "Ошибка при обновлении"})

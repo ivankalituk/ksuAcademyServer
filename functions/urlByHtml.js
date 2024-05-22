@@ -39,9 +39,14 @@ const massMatches = (array1, array2) => {
 
 // функция преобразования текста в массив
 const textToArray = (text) => {
-    return text.split(' ').filter(part => part.trim() !== '');
+    if (text === null || text ===''){
+        return []
+    } else {
+        return text.split(' ').filter(part => part.trim() !== '');
+    }
 }
 
+// массив в текст через пробел
 const arrayToText = (array) => {
     return array.join(' ');
 }
