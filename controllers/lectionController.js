@@ -58,7 +58,6 @@ const createLectionPhoto = async(req, res) => {
         const imageUrl = 'http://localhost:1000/uploads/' + req.file.filename;
         const dbImageUrl  = 'uploads/' + req.file.filename
         const {lection_id} = req.body
-        console.log(lection_id)
 
         // добавление ссылки на фото в базу данных 
         const rows = await db.execute('UPDATE lection SET lection_images = COALESCE(CONCAT(lection_images, " ", ?), ?) WHERE lection_id = ?;', [dbImageUrl, dbImageUrl, lection_id])
@@ -81,8 +80,6 @@ const updateLection = async(req, res) => {
         
         // получение всех использованных при создании лекции фото
         const [[{lection_images}]] = await db.execute("SELECT lection_images FROM lection WHERE lection_id = ?", [lection_id])
-
-        console.log(lection_images)
 
         const actualImgArray = urlByHtml(lection_content)           //актуальные адреса фото
         const allImgArray = textToArray(lection_images)             //все использованные фото
@@ -116,6 +113,24 @@ const deleteLection = async(req, res) => {
     try{
         const lection_id = req.params.id
         console.log(lection_id)
+
+        // удаление фото лекции
+        const [[{lection_images}]] = await db.execute("SELECT lection_images FROM lection WHERE lection_id = ?", [lection_id])
+        console.log(lection_images)
+
+        const lectionImgArray = textToArray(lection_images)
+
+        lectionImgArray.forEach((item) => {
+            if (fs.existsSync(item)){
+                fs.unlink(item, (err)=>{
+                    if (err){
+                        console.error(err)
+                        res.status(500).json({massage: "ошибка удаления фото лекции"})
+                    }
+                })
+            }
+        })
+
         const rows = await db.execute("DELETE FROM lection WHERE lection_id = ?", [lection_id])
         res.status(200).json({massege: "Успешно удалено"})
     } catch(err){
