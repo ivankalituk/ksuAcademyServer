@@ -9,7 +9,7 @@ const {createCourse, getOneCourse, getAllCourses, deleteCourse, getAllCoursesByT
 const {createChapter, getOneChapter, getAllChapters, deleteChapter, putChapter} = require('./controllers/chapterController.js')
 const {createTheme, getOneTheme, getAllThemes, deleteTheme, putTheme} = require('./controllers/themeController.js')
 const {createLection, getLection, getLections, createLectionPhoto, updateLection, deleteLection} = require('./controllers/lectionController.js')
-const {createUser} = require('./controllers/usersController.js')
+const {createUser, checkUserTocken} = require('./controllers/usersController.js')
 
 const port = 1000           //порт
 
@@ -85,7 +85,8 @@ app.put('/lection', updateLection)                          //обновлени
 app.post('/lection/photo',upload.single('photo'), createLectionPhoto)   //добавление фото в лекцию
 
 // CRUD для юзера
-app.post('/user', createUser)
+app.post('/user', checkUserTocken)
+
 
 
 app.listen(port, (err) => {
