@@ -3,13 +3,14 @@ const mysql = require('mysql2/promise')
 const cors = require('cors')
 const multer = require('multer')
 const {slugify} = require('transliteration')        //для перевода любых символов на англ
+const { default: axios } = require('axios');
 
 // контроллеры
 const {createCourse, getOneCourse, getAllCourses, deleteCourse, getAllCoursesByTeacher, putCourse} = require('./controllers/courseController.js')
 const {createChapter, getOneChapter, getAllChapters, deleteChapter, putChapter} = require('./controllers/chapterController.js')
 const {createTheme, getOneTheme, getAllThemes, deleteTheme, putTheme} = require('./controllers/themeController.js')
 const {createLection, getLection, getLections, createLectionPhoto, updateLection, deleteLection} = require('./controllers/lectionController.js')
-const {createUser, checkUserTocken} = require('./controllers/usersController.js')
+const {checkUserTocken, postUser} = require('./controllers/usersController.js')
 
 const port = 1000           //порт
 
@@ -85,7 +86,29 @@ app.put('/lection', updateLection)                          //обновлени
 app.post('/lection/photo',upload.single('photo'), createLectionPhoto)   //добавление фото в лекцию
 
 // CRUD для юзера
-app.post('/user', checkUserTocken)
+app.post('/userCheck', checkUserTocken)
+app.post('/user', async(req, res) => {
+    try{
+        const {access_tocken} = req.body
+        const response = await axios.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${access_tocken}`).then(({data}) => data);
+        // проверка есть ли такой пользователь в базе данных
+        const [[isExist]] = await db.execute('SELECT COUNT(*) AS count FROM users WHERE user_email = ?', [response.email])
+
+        console.log(isExist.count)
+
+        if (!isExist.count){
+            console.log('creating')
+            await db.execute('INSERT INTO users (user_googleId, user_nickName, user_email, user_role) = (?, ?, ?, ?)', [response.sub, user.email, user.email, 'student'])
+        }
+
+        const rows = await db.execute('SELECT * FROM users WHERE user_email = ?', [response.email])
+        res.status(200).json(rows[0])
+    } catch(err){
+        res.status(500).json({error: "ошибка при получении пользователя"})
+    }
+})
+
+
 
 
 
