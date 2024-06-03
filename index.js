@@ -1,9 +1,8 @@
 const express = require('express')
-const mysql = require('mysql2/promise')
-const cors = require('cors')
-const multer = require('multer')
+const mysql = require('mysql2/promise')             
+const cors = require('cors')                        //решение ошибки корс разных хостов
+const multer = require('multer')                    //для сохранения фото
 const {slugify} = require('transliteration')        //для перевода любых символов на англ
-const { default: axios } = require('axios');
 
 // контроллеры
 const {createCourse, getOneCourse, getAllCourses, deleteCourse, getAllCoursesByTeacher, putCourse} = require('./controllers/courseController.js')
@@ -12,14 +11,13 @@ const {createTheme, getOneTheme, getAllThemes, deleteTheme, putTheme} = require(
 const {createLection, getLection, getLections, createLectionPhoto, updateLection, deleteLection} = require('./controllers/lectionController.js')
 const {checkUserTocken, postUser} = require('./controllers/userController.js')
 
-const port = 1000           //порт
-
+const port = 1000                               //порт
 const app = express()       
 app.use(express.json())                         //задаём формат данных
 app.use(cors())                                 //для исправления ошибки корс
-app.use('/uploads', express.static('uploads'))
+app.use('/uploads', express.static('uploads'))  //путь для фото
 
-// создание уникальных названих для всех фото (если фото одинаковые то также будут иметь разные названия)
+// создание уникальных названих для всех фото (даже одинаковых)
 const storage = multer.diskStorage({
     destination: (_,__, cb) => {
         cb(null, 'uploads');
@@ -30,15 +28,14 @@ const storage = multer.diskStorage({
     },
 })
 
-const upload = multer({storage})       //назначение папки для файлов
-
-// подключение к базе данных
 const db = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: '',
     database: 'ksu_academy'
-})
+});
+
+const upload = multer({storage})       //назначение папки для файлов
 
 // проверка подключения
 db.getConnection()
@@ -81,16 +78,21 @@ app.get('/lection/:id', getLection)                         //получение
 app.get('/lections/:id', getLections)                       //получение айди и названий лекций по айди темы
 app.delete('/lection/:id', deleteLection)                   //удаление лекции
 app.put('/lection', updateLection)                          //обновление лекции
-app.post('/lection/photo',upload.single('photo'), createLectionPhoto)   //добавление фото в лекцию
+app.post('/lection/photo', upload.single('photo'), createLectionPhoto)   //добавление фото в лекцию
 
 // CRUD для юзера
-app.post('/userCheck', checkUserTocken)                     //
-app.post('/user', postUser)                                 //
+app.post('/userCheck', checkUserTocken)                     //проверяет активен ли пользователь, если да, то возвращает его из бд
+app.post('/user', postUser)                                 //получает пользователя и создаёт его, если он не существует
+// создание фото для юзера
+// получение юзера по юзерАйди
+// изменение данных юзера
+// удаление юзера
+// назначение новой роли пользователю
+
 
 app.listen(port, (err) => {
     if (err){
         return(console.log(err))
     }
-
     console.log("SERVER OK")
 })

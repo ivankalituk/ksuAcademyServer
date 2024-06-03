@@ -92,6 +92,7 @@ const putCourse = async (req, res) =>{
         if(req.file){
             // если есть файл, то удаляем старый
             const [[{img_path}]] = await db.execute("SELECT img_path FROM course WHERE course_id = ?", [course_id]);
+            
             if (img_path !== null && fs.existsSync(img_path)){
                 fs.unlink(img_path, (err) => {
                     if (err){
