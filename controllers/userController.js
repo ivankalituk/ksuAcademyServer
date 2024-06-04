@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise')
 const { default: axios } = require('axios');
+const fs = require('fs')
 
 const db = mysql.createPool({
     host: 'localhost',
@@ -61,20 +62,53 @@ const postUser = async(req, res) => {
     }
 }
 
-// добавление  фото пользователя
-const postUserImg = async(req, res) => {
+// обновление ника пользователя
+const putUserNickname = async (req, res) => {
     try{
-        // удаление старого фото
-        
-        // добавление нового фото
-    } catch(error){
-        res.status(500).json({error: 'Ошибка при добавлении фото пользователя'})
+        const {user_nickname, user_id} = req.body
+
+        await db.execute('UPDATE users SET user_nickName = ? WHERE user_id = ?', [user_nickname, user_id])
+        res.status(200).json('Успешно обновлено')
+    } catch(err){
+        res.status(500).json('Ошибка при изменении ника пользователя')
     }
-} 
+}
+
+// обновление аватара пользователя
+const putUserAvatar = async (req, res) => {
+    try{
+
+        const {user_id} = req.body
+        // если есть прошлое фото то удалить
+        const [[userPastImg]] = await db.execute("SELECT user_imgUrl FROM users WHERE user_id = ?", [user_id]);
+        
+        const pastImg_path = userPastImg.user_imgUrl
+
+        if (pastImg_path !== null && fs.existsSync(pastImg_path)){
+            fs.unlink(pastImg_path, (err) => {
+                if (err){
+                    console.error(err)
+                    res.status(500).json({massage: "Ошибка удаления файла"})
+                }
+            })
+        }
+
+        const {filename} = req.file
+        await db.execute("UPDATE users SET user_imgUrl = ? WHERE user_id = ?",  ['uploads/' + filename, user_id])
+
+        const rows = await db.execute("SELECT user_imgUrl FROM users WHERE user_id = ?", [user_id])
+
+        res.status(200).json(rows[0])
+    } catch(err){
+        res.status(500).json('Ошибка при изменении аватара пользователя')
+    }
+}
 
 // удаление пользователя
 
 module.exports = {
     postUser,
-    checkUserTocken
+    checkUserTocken,
+    putUserNickname,
+    putUserAvatar
 }

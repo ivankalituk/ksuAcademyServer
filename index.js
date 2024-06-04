@@ -9,7 +9,7 @@ const {createCourse, getOneCourse, getAllCourses, deleteCourse, getAllCoursesByT
 const {createChapter, getOneChapter, getAllChapters, deleteChapter, putChapter} = require('./controllers/chapterController.js')
 const {createTheme, getOneTheme, getAllThemes, deleteTheme, putTheme} = require('./controllers/themeController.js')
 const {createLection, getLection, getLections, createLectionPhoto, updateLection, deleteLection} = require('./controllers/lectionController.js')
-const {checkUserTocken, postUser} = require('./controllers/userController.js')
+const {checkUserTocken, postUser, putUserNickname, putUserAvatar} = require('./controllers/userController.js')
 
 const port = 1000                               //порт
 const app = express()       
@@ -83,6 +83,9 @@ app.post('/lection/photo', upload.single('photo'), createLectionPhoto)   //до�
 // CRUD для юзера
 app.post('/userCheck', checkUserTocken)                     //проверяет активен ли пользователь, если да, то возвращает его из бд
 app.post('/user', postUser)                                 //получает пользователя и создаёт его, если он не существует
+app.put('/userNickname', putUserNickname)
+app.put('/userImg', upload.single('photo'), putUserAvatar)
+
 // создание фото для юзера
 // получение юзера по юзерАйди
 // изменение данных юзера
