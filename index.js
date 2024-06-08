@@ -10,6 +10,7 @@ const {createChapter, getOneChapter, getAllChapters, deleteChapter, putChapter} 
 const {createTheme, getOneTheme, getAllThemes, deleteTheme, putTheme} = require('./controllers/themeController.js')
 const {createLection, getLection, getLections, createLectionPhoto, updateLection, deleteLection} = require('./controllers/lectionController.js')
 const {checkUserTocken, postUser, putUserNickname, putUserAvatar} = require('./controllers/userController.js')
+const {getTest, postTest} = require('./controllers/lectionTestController.js')
 
 const port = 1000                               //порт
 const app = express()       
@@ -86,12 +87,8 @@ app.post('/user', postUser)                                 //получает �
 app.put('/userNickname', putUserNickname)
 app.put('/userImg', upload.single('photo'), putUserAvatar)
 
-// создание фото для юзера
-// получение юзера по юзерАйди
-// изменение данных юзера
-// удаление юзера
-// назначение новой роли пользователю
-
+app.get('/lection/test/:id', getTest)
+app.post('/lection/test', postTest)
 
 app.listen(port, (err) => {
     if (err){
