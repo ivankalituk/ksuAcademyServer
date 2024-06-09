@@ -8,77 +8,84 @@ const db = mysql.createPool({
     database: 'ksu_academy'
 })
 
+// получение теста
 const getTest = async(req, res) => {
     try{
-        const lection_id = req.params.id
+        const lection_id = req.params.lection_id
 
         //получаем наш тест айди
-        const [[{lectionTest_lectionId: test_id}]] = await db.execute("SELECT * FROM lection_test WHERE lectionTest_lectionId = ?", [lection_id])
+        const [[{lectionTest_id: test_id}]] = await db.execute("SELECT * FROM lection_test WHERE lectionTest_lectionId = ?", [lection_id])
         
-        // получаем вопросы по тест айди
-        // const questions = await db.execute("SELECT * FROM lection_test_question WHERE lectionTestQuestion_testId = ?", [test_id])
+        // console.log(test_id)
 
-        // в нём на самом деле будет находится массив с айди вопросов
-        const questions = [1,2,3];
+        const [questions] = await db.execute("SELECT * FROM lection_test_question WHERE lectionTestQuestion_testId = ?", [test_id])
+        
+        let finalQuestion = [];
 
-        let questionsArray = []
+        for (const question of questions) {
+            // Добавление вопроса и inputMode
+            const questionObj = {
+                question: question.lectionTestQuestion_text,
+                inputMode: question.lectionTestQuestion_mode,
+                correctAnswer: [],
+                options: []
+            };
+        
+            const [answers] = await db.execute("SELECT * FROM lection_test_answer WHERE lectionTestAnswer_questionId = ?", [question.lectionTestQuestion_id]);
+        
+            answers.forEach(answer => {
+                questionObj.correctAnswer.push(answer.lectionTestAnswer_text);
+            });
+        
+            const [options] = await db.execute("SELECT * FROM lection_test_option WHERE lectionTestOption_questionId = ?", [question.lectionTestQuestion_id]);
 
+            options.forEach(option => {
+                questionObj.options.push(option.lectionTestOption_text);
+            });
 
-        // // сделать цикл, которй проходит колличество вопросов
-        // for (let i = 0; i < questions.length - 1; i++){
+            finalQuestion.push(questionObj);
+        }
 
-        //     // получаем первый вопрос по запросу
-        //     const question = await db.execute("SELECT * FROM lection_test_question WHERE lectionTest_lectionId = ?", [lection_id])
-        //     // заполняем данные по вопросу в объект массива вопросов
-
-        //     // получаем
-
-        // }
-
-
-
-        res.status(200).json(test_id)
-
-
+        res.status(200).json(finalQuestion)
     } catch(err){
         res.status(500).json({error: "Не удалось получить тест"})
     }
 }
 
+// создание и пересоздание курса (вместо обновления)
 const postTest = async(req,res) => {
     try{
-        // const {testMass, lection_id} = req.body
+        const {testMass, lection_id} = req.body
+        // console.log(testMass)
 
         // наш тестовый объект
-        const testMass = [
-            {
-            question: 'What is 2 + 2?',
-            options: ['3', '4', '5', '6'],
-            correctAnswer: ['4'],
-            inputMode: 'radio',
-            },
-            {
-            question: 'What is the capital of France?',
-            options: ['London', 'Paris', 'Berlin', 'Madrid'],
-            correctAnswer: ['Paris'],
-            inputMode: 'radio',
-            },
-            {
-            question: 'What is |x| = 2?',
-            options: ['2', '-2', '4', '10'],
-            correctAnswer: ['2', '-2'],
-            inputMode: 'checkbox',
-            },
-        ]
+        // const testMass = [
+        //     {
+        //     question: 'What is 2 + 2?',
+        //     options: ['3', '4', '5', '6'],
+        //     correctAnswer: ['4'],
+        //     inputMode: 'radio',
+        //     },
+        //     {
+        //     question: 'What is the capital of France?',
+        //     options: ['London', 'Paris', 'Berlin', 'Madrid'],
+        //     correctAnswer: ['Paris'],
+        //     inputMode: 'radio',
+        //     },
+        //     {
+        //     question: 'What is |x| = 2?',
+        //     options: ['2', '-2', '4', '10'],
+        //     correctAnswer: ['2', '-2'],
+        //     inputMode: 'checkbox',
+        //     },
+        // ]
         
-        // наша лекция
-        const lection_id = 2
+        // // наша лекция
+        // const lection_id = 999
 
         // если тест для лекции не создан, то создаём его с нуля
-        await db.execute('INSERT INTO lection_test (lectionTest_lectionId) SELECT 2 FROM dual WHERE NOT EXISTS (SELECT 1 FROM lection_test WHERE lectionTest_lectionId = ?)', [lection_id])
+        await db.execute('INSERT INTO lection_test (lectionTest_lectionId) SELECT ? FROM dual WHERE NOT EXISTS (SELECT 1 FROM lection_test WHERE lectionTest_lectionId = ?)', [lection_id, lection_id])
         const [[{lectionTest_id: test_id}]] = await db.execute('SELECT lectionTest_id FROM lection_test WHERE lectionTest_lectionId = ?', [lection_id])
-
-        console.log(test_id)
 
         // для начала удаляем все данные по тесту этой же лекции
         await db.execute('DELETE FROM lection_test_answer WHERE lectionTestAnswer_testId = ?', [test_id])
@@ -87,23 +94,22 @@ const postTest = async(req,res) => {
         
         // цикл, который добавить тест в базу данных
         testMass.forEach( async (question) => {
-            console.log(question.question)
+
             // добавляем самм вопрос и инпутМод
-            await db.execute("INSERT INTO lection_test_question (lectionTestQuestion_text, lectionTestQuestion_mode, lectionTestQuestion_testId) VALUES (?, ?, ?)", [question.question, question.inputMode, test_id])
-            
+            const [{insertId: question_id}] = await db.execute("INSERT INTO lection_test_question (lectionTestQuestion_text, lectionTestQuestion_mode, lectionTestQuestion_testId) VALUES (?, ?, ?)", [question.question, question.inputMode, test_id])
+
             // добавляем опшны
-            // ТУТ НЕТУ КВЕСЧИН АЙДИ
             question.options.forEach(async (option) => {
-                await db.execute("INSERT INTO lection_test_option (lectionTestOption_text, lectionTestOption_testId) VALUES (?, ?)", [option, test_id])
+                await db.execute("INSERT INTO lection_test_option (lectionTestOption_text, lectionTestOption_testId, lectionTestOption_questionId) VALUES (?, ?, ?)", [option, test_id, question_id])
             })
 
             // // добавляем правильные ответы
-            // question.correctAnswer.forEach(async (answer) => {
-            //     await db.execute("INSERT INTO lection_test_answer (lectionTestAnswer_text, lectionTestAnswer_testId) = (?, ?)", [answer, test_id])
-            // })
+            question.correctAnswer.forEach(async (answer) => {
+                await db.execute("INSERT INTO lection_test_answer (lectionTestAnswer_text, lectionTestAnswer_testId, lectionTestAnswer_questionId) VALUES (?, ?, ?)", [answer, test_id, question_id])
+            })
         })
 
-        res.status(200).json({massage: "я вахуе, но это работает"})
+        res.status(200).json({massage: "Тест успешно создан"})
     } catch(error){
         res.status(500).json({error: "Ошибка при добавлении теста"})
     }
@@ -111,7 +117,27 @@ const postTest = async(req,res) => {
     
 }
 
+// удаление теста
+const deleteTest = async(req, res) => {
+    try{
+        const lection_id = req.params.lection_id
+        
+        // получение айди теста
+        const [[{lectionTest_id: test_id}]] = await db.execute('SELECT lectionTest_id FROM lection_test WHERE lectionTest_lectionId = ?', [lection_id])
+        
+        await db.execute('DELETE FROM lection_test WHERE lectionTest_Id = ?', [test_id])
+        await db.execute('DELETE FROM lection_test_answer WHERE lectionTestAnswer_testId = ?', [test_id])
+        await db.execute('DELETE FROM lection_test_option WHERE lectionTestOption_testId = ?', [test_id])
+        await db.execute('DELETE FROM lection_test_question WHERE lectionTestQuestion_testId = ?', [test_id])
+
+        res.status(200).json({massage: "Тест успешно удалён"})
+    } catch(error){
+        res.status(500).json({error: "Ошибка при удалении данных"})
+    }
+}
+
 module.exports = {
     getTest,
-    postTest
+    postTest,
+    deleteTest
 }
