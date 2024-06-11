@@ -9,14 +9,22 @@ const db = mysql.createPool({
 })
 
 // получение теста
+
+// ПРОБЛЕМА В ТОМ, ЧТО ЕСЛИ ЛЕКЦИЯ ТОЛЬКО ЧТО БЫЛА СОЗДАНА, У НЕЁ ЕЩЁ НЕТ ТЕСТА, А ПОТОМУ НУЖНО ПЕРЕДАВАТЬ ЕМУ ПУСТОЙ МАССИВ
 const getTest = async(req, res) => {
     try{
         const lection_id = req.params.lection_id
 
+        console.log(lection_id)
         //получаем наш тест айди
-        const [[{lectionTest_id: test_id}]] = await db.execute("SELECT * FROM lection_test WHERE lectionTest_lectionId = ?", [lection_id])
-        
-        // console.log(test_id)
+        // const [[{lectionTest_id: test_id}]] = await db.execute("SELECT * FROM lection_test WHERE lectionTest_lectionId = ?", [lection_id])
+
+        const [[{lectionTest_id: test_id}]] = await db.execute('SELECT CASE WHEN COUNT(*) > 0 THEN lectionTest_id ELSE -1 END AS lectionTest_id FROM lection_test WHERE lectionTest_lectionId = ?;', [lection_id])
+        console.log(test_id)
+        if (test_id < 0){
+            res.status(200).json({data: null})
+            return
+        }
 
         const [questions] = await db.execute("SELECT * FROM lection_test_question WHERE lectionTestQuestion_testId = ?", [test_id])
         
