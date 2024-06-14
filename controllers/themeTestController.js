@@ -8,19 +8,51 @@ const db = mysql.createPool({
     database: 'ksu_academy'
 })
 
-// получение теста
+// получение теста для странички темы (только тест айди)
+const getThemePractice = async(req, res) => {
+    try{
+        const theme_id = req.params.theme_id
+        const  [[{themeTest_id: test_id}]] = await db.execute('SELECT CASE WHEN COUNT(*) > 0 THEN themeTest_id ELSE -1 END AS themeTest_id FROM theme_test WHERE themeTest_themeId = ?;', [theme_id])
+
+        console.log(test_id)
+
+        if(test_id !== -1){
+            console.log('SENDING TEST ID')
+            res.status(200).json({test_id: test_id})
+        } else{
+            res.status(200).json([])
+        }
+        
+    } catch(error){
+        res.status(500).json({error: "Ошибка при получении практики"})
+    }
+}
+
+// создание теста для странички темы (Практика)
+const postThemePractice = async(req, res) => {
+    try{
+        const {theme_id} = req.body
+        console.log(theme_id)
+
+        const rows = await db.execute('INSERT INTO theme_test (themeTest_themeId) VALUES (?) ', [theme_id])
+        res.json(rows[0])
+    } catch(error){
+        res.status(500).json({error: "Ошибка при получении практики"})
+    }
+}
 
 // получение теста
-// не проверял
 const getThemeTest = async(req, res) => {
     try{
         const theme_id = req.params.theme_id
 
-        console.log(theme_id)
+        console.log('theme_id: ', theme_id)
         //получаем наш тест айди
 
         const [[{themeTest_id: test_id}]] = await db.execute('SELECT CASE WHEN COUNT(*) > 0 THEN themeTest_id ELSE -1 END AS themeTest_id FROM theme_test WHERE themeTest_themeId = ?;', [theme_id])
+        
         console.log(test_id)
+
         if (test_id < 0){
             res.status(200).json({data: null})
             return
@@ -61,7 +93,6 @@ const getThemeTest = async(req, res) => {
 }
 
 // создание и пересоздание курса (вместо обновления)
-// не проверял
 const posThemeTest = async(req,res) => {
     try{
         const {testMass, theme_id} = req.body
@@ -101,7 +132,6 @@ const posThemeTest = async(req,res) => {
 }
 
 // удаление теста
-// не проверял
 const deleteThemeTest = async(req, res) => {
     try{
         const theme_id = req.params.theme_id
@@ -123,5 +153,7 @@ const deleteThemeTest = async(req, res) => {
 module.exports = {
     getThemeTest,
     posThemeTest,
-    deleteThemeTest
+    deleteThemeTest,
+    getThemePractice,
+    postThemePractice
 }

@@ -10,7 +10,8 @@ const {createChapter, getOneChapter, getAllChapters, deleteChapter, putChapter} 
 const {createTheme, getOneTheme, getAllThemes, deleteTheme, putTheme} = require('./controllers/themeController.js')
 const {createLection, getLection, getLections, createLectionPhoto, updateLection, deleteLection} = require('./controllers/lectionController.js')
 const {checkUserTocken, postUser, putUserNickname, putUserAvatar} = require('./controllers/userController.js')
-const {getTest, postTest, deleteTest} = require('./controllers/lectionTestController.js')
+const {getLectionTest, postLectionTest, deleteLectionTest} = require('./controllers/lectionTestController.js')
+const {getThemeTest, posThemeTest, deleteThemeTest, getThemePractice, postThemePractice} = require('./controllers/themeTestController.js')
 
 const port = 1000                               //порт
 const app = express()       
@@ -84,12 +85,19 @@ app.post('/lection/photo', upload.single('photo'), createLectionPhoto)   //до�
 // CRUD для юзера
 app.post('/userCheck', checkUserTocken)                     //проверяет активен ли пользователь, если да, то возвращает его из бд
 app.post('/user', postUser)                                 //получает пользователя и создаёт его, если он не существует
-app.put('/userNickname', putUserNickname)
-app.put('/userImg', upload.single('photo'), putUserAvatar)
+app.put('/userNickname', putUserNickname)                   //изменение никнейма
+app.put('/userImg', upload.single('photo'), putUserAvatar)  //изменение аватара пользователя
 
-app.get('/lection/test/:lection_id', getTest)
-app.post('/lection/test', postTest)
-app.delete('/lection/test/:lection_id', deleteTest)
+app.get('/lection/test/:lection_id', getLectionTest)        //получение лекционного теста
+app.post('/lection/test', postLectionTest)                  //создание или изменение лекционного теста
+app.delete('/lection/test/:lection_id', deleteLectionTest)  //удаление лекционного теста
+
+app.get('/theme/test/:theme_id', getThemeTest)              //получение теста темы
+app.post('/theme/test', posThemeTest)                       //создание и изменение теста темы
+app.delete('/theme/test/:theme_id', deleteThemeTest)        //удаление теста темы
+
+app.get('/theme/practice/:theme_id', getThemePractice)      //получение айди теста для отображения практики
+app.post('/theme/practice', postThemePractice)              //создание айди теста для отображения практики
 
 app.listen(port, (err) => {
     if (err){

@@ -11,7 +11,7 @@ const db = mysql.createPool({
 // получение теста
 
 // ПРОБЛЕМА В ТОМ, ЧТО ЕСЛИ ЛЕКЦИЯ ТОЛЬКО ЧТО БЫЛА СОЗДАНА, У НЕЁ ЕЩЁ НЕТ ТЕСТА, А ПОТОМУ НУЖНО ПЕРЕДАВАТЬ ЕМУ ПУСТОЙ МАССИВ
-const getTest = async(req, res) => {
+const getLectionTest = async(req, res) => {
     try{
         const lection_id = req.params.lection_id
 
@@ -61,7 +61,7 @@ const getTest = async(req, res) => {
 }
 
 // создание и пересоздание курса (вместо обновления)
-const postTest = async(req,res) => {
+const postLectionTest = async(req,res) => {
     try{
         const {testMass, lection_id} = req.body
         // console.log(testMass)
@@ -126,7 +126,7 @@ const postTest = async(req,res) => {
 }
 
 // удаление теста
-const deleteTest = async(req, res) => {
+const deleteLectionTest = async(req, res) => {
     try{
         const lection_id = req.params.lection_id
         
@@ -145,7 +145,7 @@ const deleteTest = async(req, res) => {
 }
 
 module.exports = {
-    getTest,
-    postTest,
-    deleteTest
+    getLectionTest,
+    postLectionTest,
+    deleteLectionTest
 }
